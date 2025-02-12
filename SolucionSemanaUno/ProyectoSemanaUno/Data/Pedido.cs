@@ -8,78 +8,119 @@ namespace ProyectoSemanaUno.Data
 {
     public class Pedido
     {
-        public string Cliente { get; set; }
-        public List<(Producto Producto, int Cantidad)> Productos { get; private set; } = new List<(Producto, int)>();
-        public decimal Total { get; private set; } = 0;
+        private List<Producto> productosEnPedido = new List<Producto>();
+        private Inventario inventario;
+        public int IdPedido { get; set; }
+        public string cliente { get; set; }
 
-        // Crear
-        public void AgregarProducto(Producto producto, int cantidad)
+        public Pedido(Inventario inventario)
         {
-            if (producto.EstaDisponible(cantidad))
+            this.inventario = inventario;
+        }
+
+        public void AgregarProducto()
+        {
+            Console.WriteLine("Ingrese el nombre del producto:");
+            string nombre = Console.ReadLine();
+
+            Console.WriteLine("Ingrese la cantidad del producto:");
+            int cantidad = int.Parse(Console.ReadLine());
+
+            Producto producto = inventario.BuscarProducto(nombre);
+
+            if (producto != null && producto.EstaDisponible(cantidad))
             {
                 producto.ReducirInventario(cantidad);
-                Productos.Add((producto, cantidad));
-                Total += producto.Precio * cantidad;
-                Console.WriteLine($"Producto {producto.Nombre} agregado al pedido.");
+                productosEnPedido.Add(producto);
+                Console.WriteLine($"{cantidad} unidad(es) de {nombre} agregadas al pedido.");
             }
             else
             {
-                throw new InvalidOperationException($"No hay suficiente inventario para el producto {producto.Nombre}.");
+                Console.WriteLine($"No hay suficiente stock de {nombre}.");
             }
         }
 
-        // Leer
+        public void EliminarProducto()
+        {
+            Console.WriteLine("Ingrese el nombre del producto:");
+            string nombre = Console.ReadLine();
+
+            Producto productoEnPedido = productosEnPedido.Find(p => p.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+
+            if (productoEnPedido != null)
+            {
+                productosEnPedido.Remove(productoEnPedido);
+
+                Producto productoInventario = inventario.BuscarProducto(nombre);
+                if (productoInventario != null)
+                {
+                    productoInventario.CantidadDisponible += productoEnPedido.CantidadDisponible;
+                }
+
+                Console.WriteLine($"{productoEnPedido.CantidadDisponible} unidad(es) de {nombre} eliminadas del pedido y devueltas al inventario.");
+            }
+            else
+            {
+                Console.WriteLine($"El producto {nombre} no está en el pedido.");
+            }
+        }
+
         public void MostrarPedido()
         {
-            Console.WriteLine($"\nPedido de {Cliente}:");
-            foreach (var (producto, cantidad) in Productos)
+            if (productosEnPedido.Count == 0)
             {
-                Console.WriteLine($"- {producto.Nombre}: ${producto.Precio} x {cantidad} = ${producto.Precio * cantidad}");
+                Console.WriteLine("El pedido está vacío.");
+                return;
             }
-            Console.WriteLine($"Total: ${Total}");
+
+            decimal costoTotal = 0;
+            Console.WriteLine("Cliente: {0}", cliente);
+            Console.WriteLine("\nProductos en el pedido:");
+            foreach (var producto in productosEnPedido)
+            {
+                Console.WriteLine($"{producto.Nombre} - {producto.CantidadDisponible} unidades - ${producto.Precio} c/u - Total: ${producto.Precio * producto.CantidadDisponible}");
+                costoTotal += producto.Precio * producto.CantidadDisponible;
+            }
+            Console.WriteLine($"\nCosto total del pedido: ${costoTotal}");
         }
 
-        // Actualizar
-        public void ActualizarCantidadProducto(string nombreProducto, int nuevaCantidad)
+        public void EditarPedido()
         {
-            var item = Productos.Find(p => p.Producto.Nombre.Equals(nombreProducto, StringComparison.OrdinalIgnoreCase));
-            if (item.Producto != null)
+            Console.WriteLine("Ingrese el nombre del producto a modificar:");
+            string nombre = Console.ReadLine();
+
+            Producto productoEnPedido = productosEnPedido.Find(p => p.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
+
+            if (productoEnPedido != null)
             {
-                var diferencia = nuevaCantidad - item.Cantidad;
-                if (item.Producto.EstaDisponible(diferencia))
+                Console.WriteLine($"Cantidad actual en pedido: {productoEnPedido.CantidadDisponible}");
+                Console.Write("Ingrese la nueva cantidad: ");
+                int nuevaCantidad = int.Parse(Console.ReadLine());
+
+                Producto productoInventario = inventario.BuscarProducto(nombre);
+                int diferencia = nuevaCantidad - productoEnPedido.CantidadDisponible;
+
+                if (productoInventario != null && productoInventario.EstaDisponible(diferencia))
                 {
-                    item.Producto.ReducirInventario(diferencia);
-                    Productos.Remove(item);
-                    Productos.Add((item.Producto, nuevaCantidad));
-                    Total += item.Producto.Precio * diferencia;
-                    Console.WriteLine($"Cantidad del producto {nombreProducto} actualizada.");
+                    productoInventario.ReducirInventario(diferencia);
+                    productoEnPedido.CantidadDisponible = nuevaCantidad;
+                    Console.WriteLine("Pedido actualizado correctamente.");
                 }
                 else
                 {
-                    Console.WriteLine("No hay suficiente inventario para ajustar la cantidad.");
+                    Console.WriteLine("Cantidad insuficiente en inventario para actualizar el pedido.");
                 }
             }
             else
             {
-                Console.WriteLine($"Producto {nombreProducto} no encontrado en el pedido.");
+                Console.WriteLine($"El producto {nombre} no está en el pedido.");
             }
         }
 
-        // Eliminar
-        public void EliminarProducto(string nombreProducto)
-        {
-            var item = Productos.Find(p => p.Producto.Nombre.Equals(nombreProducto, StringComparison.OrdinalIgnoreCase));
-            if (item.Producto != null)
-            {
-                Productos.Remove(item);
-                Total -= item.Producto.Precio * item.Cantidad;
-                item.Producto.CantidadDisponible += item.Cantidad;
-                Console.WriteLine($"Producto {nombreProducto} eliminado del pedido.");
-            }
-            else
-            {
-                Console.WriteLine($"Producto {nombreProducto} no encontrado en el pedido.");
-            }
-        }
+
+
     }
+
+
+
 }

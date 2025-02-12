@@ -6,14 +6,23 @@ using System.Threading.Tasks;
 
 namespace ProyectoSemanaUno.Data
 {
-    public class ProductoElectronico : Producto
+    //( este signo hereda :)//
+    public class ProductoHogar : Producto
     {
-        public ProductoElectronico(string nombre, decimal precio, int cantidadDisponible)
-            : base(nombre, "Electrónica", precio, cantidadDisponible) { }
+        public ProductoHogar(string nombre, decimal precio, int cantidadDisponible)
+            : base(nombre, "Hogar", precio, cantidadDisponible) { }
 
         public override void MostrarInformacion()
         {
-            Console.WriteLine($"Electrónica - {Nombre}: ${Precio} ({CantidadDisponible} disponibles)");
+            /*Console.WriteLine("Hogar - "+Nombre+Precio+CantidadDisponible);
+            Console.WriteLine("Hogar - Cantidad{0} Nombre:{1} Precio {2}",CantidadDisponible, Nombre, Precio);
+            */
+            Console.WriteLine($"Hogar - {Nombre}: ${Precio} ({CantidadDisponible} disponibles)");
         }
     }
+
+
+
+
 }
+

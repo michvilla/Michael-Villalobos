@@ -20,5 +20,8 @@ namespace ProyectoSemanaUno.Data
             Console.WriteLine($"Hogar - {Nombre}: ${Precio} ({CantidadDisponible} disponibles)");
         }
     }
-}
 
+
+
+
+}

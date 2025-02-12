@@ -11,12 +11,48 @@ namespace ProyectoSemanaUno.Data
     {
         //Atributo
         public List<Producto> productos = new List<Producto>();
+
         // Crear
-        public void AgregarProducto(Producto producto)
+        public void AgregarProducto()
         {
-            productos.Add(producto);
-            Console.WriteLine("Producto agregado al inventario.");
+            Console.WriteLine("Ingrese el nombre del producto nuevo:");
+            string nombreProducto = Console.ReadLine();
+
+            Console.WriteLine("Ingrese el precio del producto nuevo:");
+            decimal PrecioProducto = decimal.Parse(Console.ReadLine());
+
+            Console.WriteLine("Ingrese la cantidad disponible del producto nuevo:");
+            int CantidadDisponibleProducto = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Seleccione la categoria del producto: \n1-Hogar \n2-Moda \n3-Electronico");
+            int tipoCategoria = int.Parse(Console.ReadLine());
+
+            switch (tipoCategoria)
+            {
+                case 1:
+                    ProductoHogar productoHogar = new ProductoHogar(nombreProducto, PrecioProducto, CantidadDisponibleProducto);
+                    productos.Add(productoHogar);
+                    Console.WriteLine("Producto agregado al inventario.");
+                    break;
+                case 2:
+                    ProductoModa productoModa = new ProductoModa(nombreProducto, PrecioProducto, CantidadDisponibleProducto);
+                    productos.Add(productoModa);
+                    Console.WriteLine("Producto agregado al inventario.");
+                    break;
+                case 3:
+                    ProductoElectronico productoElectronico = new ProductoElectronico(nombreProducto, PrecioProducto, CantidadDisponibleProducto);
+                    productos.Add(productoElectronico);
+                    Console.WriteLine("Producto agregado al inventario.");
+                    break;
+                default:
+                    Console.WriteLine("Seleccione una categoria correcta.");
+                    break;
+            }
+
+
+
         }
+
         // Leer
         public void MostrarTodosLosProductos()
         {
@@ -34,6 +70,7 @@ namespace ProyectoSemanaUno.Data
                 producto.MostrarInformacion();
             }
         }
+
         // Actualizar
         public void ActualizarProducto(string nombre, decimal nuevoPrecio, int nuevaCantidad)
         {
@@ -49,9 +86,12 @@ namespace ProyectoSemanaUno.Data
                 Console.WriteLine($"Producto {nombre} no encontrado.");
             }
         }
+
         // Eliminar
-        public void EliminarProducto(string nombre)
+        public void EliminarProducto()
         {
+            Console.WriteLine("Ingrese el nombre del producto a eliminar:");
+            string nombre = Console.ReadLine();
             var producto = productos.Find(p => p.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
             if (producto != null)
             {
@@ -63,6 +103,7 @@ namespace ProyectoSemanaUno.Data
                 Console.WriteLine($"Producto {nombre} no encontrado.");
             }
         }
+
         public Producto BuscarProducto(string nombre)
         {
             return productos.Find(p => p.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase));
